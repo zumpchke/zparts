@@ -15,10 +15,10 @@ module base_rj45(anchors=[], anchor=CENTER, spin=0, orient=UP) {
     attachable(anchor, spin, orient, size=[RJ45_BASE_W, RJ45_BASE_D, RJ45_BODY_H], anchors=anchors) {
         diff() {
             cuboid([RJ45_BASE_W, RJ45_BASE_D, RJ45_BASE_H]) {
-                tag("remove") position(FRONT+LEFT+BOTTOM) translate([2.245, 12.65, 0]) cyl(d=RJ45_HOLE_D, h=20, anchor=BOTTOM);
-                tag("remove") position(FRONT+RIGHT+BOTTOM) translate([-2.245, 12.65, 0]) cyl(d=RJ45_HOLE_D, h=20, anchor=BOTTOM);
+                tag("remove") position(FRONT+LEFT) translate([2.245, 12.65, 0]) cyl(d=RJ45_HOLE_D, h=10, anchor=BOTTOM);
+                tag("remove") position(FRONT+RIGHT) translate([-2.245, 12.65, 0]) cyl(d=RJ45_HOLE_D, h=10, anchor=BOTTOM);
+                position(TOP+FRONT) cuboid([RJ45_BODY_W, RJ45_BODY_D, RJ45_BODY_H], anchor=BOTTOM+FRONT);
             }
-            position(TOP+FRONT) cuboid([RJ45_BODY_W, RJ45_BODY_D, RJ45_BODY_H], anchor=BOTTOM+FRONT);
         }
         children();
     }
