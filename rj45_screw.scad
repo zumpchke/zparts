@@ -25,8 +25,14 @@ module base_rj45(anchors=[], anchor=CENTER, spin=0, orient=UP) {
 }
 
 module rj45_screw() {
+    // Hole centers in world coords (from position(FRONT+LEFT/RIGHT) translate offsets)
+    hole_L_x = -RJ45_BASE_W/2 + 2.245;
+    hole_R_x = RJ45_BASE_W/2 - 2.245;
+    hole_y = RJ45_BASE_D/2 - 12.65;
     anchors = [
-        named_anchor("mount", [0, 0, -RJ45_BASE_H/2], DOWN)
+        named_anchor("mount", [0, 0, -RJ45_BASE_H/2], DOWN),
+        named_anchor("screw_L", [hole_L_x, hole_y, RJ45_BASE_H/2], FRONT),
+        named_anchor("screw_R", [hole_R_x, hole_y, RJ45_BASE_H/2], FRONT)
     ];
     base_rj45(anchors=anchors) children();
 }
