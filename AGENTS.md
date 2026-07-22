@@ -57,7 +57,7 @@ smallbb() {
 - `BB_D = 83.3` — breadboard depth (mm)
 - `BB_H = 9.1` — breadboard height (mm)
 - `BB_MOUNT_Y = 18.75` — Y offset of mounting holes from center
-- `BB_MOUNT_Z = 1.5` — Z height of mounting holes
+- `BB_MOUNT_Z = -4.5` — Z height of mounting holes
 
 ### Design Decisions
 - No `diff()` or hole cutting — the breadboard STL already has mounting holes
@@ -77,3 +77,120 @@ smallbb() {
 4. **`named_anchor()` spin defaults to 0.** The trailing `, 0` in `named_anchor("name", point, UP, 0)` is noise — just use `named_anchor("name", point, UP)`.
 
 5. **`attachable()` positional params come before keyword params.** The signature is `attachable(anchor, spin, orient, size=..., anchors=...)` — positional args for attachment behavior, keyword args for geometry and anchors.
+
+---
+
+## jl_scad Library
+
+### Location
+`~/Documents/OpenSCAD/libraries/jl_scad/` — cloned as a git repo into OpenSCAD's user libraries folder.
+
+### Structure
+```
+jl_scad/
+├── utils.scad          — X(), Y(), Z(), M() translation helpers, cut_inspect()
+├── box.scad            — box_shell_base_lid(), box_make(), box_part(), box_cutout(), box_preview()
+├── parts.scad          — standoff(), screw_hole(), box_standoff_clamp(), box_preview(), box_cutout(), etc.
+├── reset_transform.scad — $_matrix tracking, save_transform(), reset_transform()
+├── parts/              — Component modules (esp32_wroom_32.scad, qapass_1602a_led.scad)
+├── examples/           — Example projects
+├── images/             — Documentation images
+└── README.md           — Installation and usage docs
+```
+
+### How jl_scad is Used (from poe_shutter/shutter.scad)
+
+**Includes:**
+```scad
+include <jl_scad/utils.scad>
+include <jl_scad/box.scad>
+include <jl_scad/parts.scad>
+```
+
+**Box shell definition:**
+```scad
+box_shell_base_lid([75,82,box_height], wall_sides=1.5, wall_top=1.5, rim_gap=0,
+    rbot=1.5, rbot_inside=0, rtop=1, rtop_inside=0, rsides=1, rim_height=2,
+    walls_outside=true, base_height=box_height-10)
+```
+- `base_height` creates a base+lid system (base is 10mm shorter than total)
+- `walls_outside=true` — walls extend outside the footprint
+- `rim_height` — rim on top half for lid fit
+
+**box_make() wrapper:**
+```scad
+box_make(print=true, explode=0, hide_box=false, hide_parts=false, hide_previews=false)
+```
+- Controls rendering mode (print, preview, explode)
+- `print=true` — outputs final geometry
+- `explode=0` — no exploded view offset
+
+**Part placement with box_part():**
+```scad
+box_part(BOTTOM, CENTER) X(14) {
+    box_preview() Z(5) Z(1.6/2) Z(0) Y(-25) rj45_screw();
+}
+```
+- `box_part(side, anchor)` — combines `box_half()` + `box_pos()` for convenient placement
+- `BOTTOM` — which box half (base or lid)
+- `CENTER` — which face of that half
+- `box_preview()` — shows transparent preview, not included in final render
+- `box_cut()` — shows cut surface, included in final render
+- `box_cutout()` — creates cutout geometry in the box wall
+
+**Part placement with box_half() + box_pos():**
+```scad
+box_half(BOT, inside=false)
+    box_pos(LEFT, undef)
+        standoff(id=3, od=5, h=5);
+```
+- `box_half(half, inside)` — selects which box half and whether inside/outside
+- `box_pos(anchor, side)` — positions children at the selected face
+- `inside=false` — part is on the outside of the box
+
+**Components used:**
+- `rj45()` / `rj45_screw()` — RJ45 jacks
+- `lm2596s()` — LM2596S buck converter
+- `shield()` — Wemos shield
+- `shield_carrier(x, y, h, corner, wall)` — shield mounting carrier
+- `d1()` — D1 mini board
+- `max485()` — MAX485 module
+- `standoff(id, od, h)` — mounting standoffs
+- `screw_hole("M2.5,20", head="flat", counterbore=0, anchor=TOP)` — screw holes
+
+**Text labels:**
+```scad
+box_part(TOP+RIGHT, TOP, inside=false) text3d("RIGHT", h=0.25, size=3, anchor=BOTTOM+LEFT+BACK);
+```
+- `TOP+RIGHT` — right face of the top half
+- `inside=false` — text on outside surface
+
+**Global settings:**
+- `$box_cut_color = "#977"` — cut surface color
+- `$box_outside_color = "#ccc"` — outside color
+- `$box_inside_color = "#a99"` — inside color
+- `$box_preview_color = "#77f8"` — preview transparency color
+- `$box_inside_overlap = 0.0001` — overlap for boolean operations
+
+### Key jl_scad Patterns
+
+1. **`box_part(side+half, anchor)`** — convenience wrapper combining half selection and face positioning
+2. **`box_preview()`** — transparent preview mode for parts not in final render
+3. **`box_cut()`** — included parts shown with cut surface color
+4. **`box_cutout(shape)`** — creates cutout geometry in box walls
+5. **`box_half(half, inside)` + `box_pos(anchor, side)`** — lower-level part placement
+6. **`$parent_size.z`** — available inside parts for getting box height
+7. **`box_standoff_clamp()`** — standoff with screw clamp for PCB mounting
+8. **`text3d()`** — 3D text labels on box faces
+9. **`hide_this()`** — hides preview geometry from final render
+10. **`color()`** — colors parts differently for visual distinction
+
+### jl_scad/parts/ Subdirectory
+- **`esp32_wroom_32.scad`** — ESP32 module with integrated standoff mounting, USB-C cutout, and `box_preview()`
+- **`qapass_1602a_led.scad`** — 1602 LCD module with standoff mounting and cutout
+
+### reset_transform.scad
+- Overrides `translate()`, `rotate()`, `scale()`, `multmatrix()` to track transforms in `$_matrix`
+- `save_transform()` — resets `$_matrix` to IDENT
+- `reset_transform()` — applies inverse matrix to undo accumulated transforms
+- Used for complex nested transform scenarios
