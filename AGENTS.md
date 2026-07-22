@@ -78,9 +78,60 @@ smallbb() {
 
 5. **`attachable()` positional params come before keyword params.** The signature is `attachable(anchor, spin, orient, size=..., anchors=...)` — positional args for attachment behavior, keyword args for geometry and anchors.
 
+6. **`rect_tube` as a child of another shape attaches at that shape's transform.** When `rect_tube` is a child of `cuboid`, it inherits the cuboid's transform context. Use `position(BOTTOM)` on the `rect_tube` to place it at the cube's bottom face. The `rect_tube`'s `size` parameter takes `[width, depth]` (2D), not 3D.
+
+7. **Placement guides can use short `rect_tube` children.** A `rect_tube` used as a placement/alignment guide (e.g., 2mm tall) is a child of the main geometry. It doesn't affect the attachable's `size=` — that should reflect the actual part dimensions, not guide geometry.
+
+8. **Remove example calls before shipping.** The `wire_connector()` call at the bottom of the file (for standalone preview) causes `attach("mount")` to fail if the anchor isn't defined yet. Remove example code that references anchors before the attachable is properly set up, or test with `wire_connector()` alone (no children).
+
 ---
 
-## jl_scad Library
+## wire_connector Part
+
+### Location
+`wire_connector.scad`
+
+### Purpose
+2-pin spring clamp wire connector (no-solder splice) with bottom mount point.
+
+### Dimensions
+19.4 × 17.2 × 13.2mm
+
+### Module Structure
+
+- **`base_connector(anchors=[], anchor, spin, orient)`** — Attachable base with `cuboid([WC_W, WC_D, WC_H])` and a `rect_tube` child as a 2mm placement guide at the bottom.
+- **`wire_connector()`** — Defines `named_anchor("mount", [0, 0, -WC_H/2], DOWN)` and calls `base_connector(anchors=anchors) children()`.
+
+### Usage Pattern
+
+```scad
+module base_connector(anchors=[], anchor=CENTER, spin=0, orient=UP) {
+    attachable(anchor, spin, orient, size=[WC_W, WC_D, WC_H], anchors=anchors) {
+        cuboid([WC_W, WC_D, WC_H]) {
+            position(BOTTOM)
+                rect_tube(h=2, size=[WC_W + 4, WC_D + 4], wall=1.5, rounding=1);
+        }
+        children();
+    }
+}
+
+module wire_connector() {
+    anchors = [
+        named_anchor("mount", [0, 0, -WC_H/2], DOWN)
+    ];
+    base_connector(anchors=anchors) children();
+}
+
+// External code attaches objects to named anchors
+wire_connector() {
+    attach("mount") cyl(d=4, h=10, anchor=CENTER);
+}
+```
+
+### Constants
+- `WC_W = 19.4` — width (mm)
+- `WC_D = 17.2` — depth (mm)
+- `WC_H = 13.2` — height (mm)
 
 ### Location
 `~/Documents/OpenSCAD/libraries/jl_scad/` — cloned as a git repo into OpenSCAD's user libraries folder.
@@ -194,3 +245,42 @@ box_part(TOP+RIGHT, TOP, inside=false) text3d("RIGHT", h=0.25, size=3, anchor=BO
 - `save_transform()` — resets `$_matrix` to IDENT
 - `reset_transform()` — applies inverse matrix to undo accumulated transforms
 - Used for complex nested transform scenarios
+
+---
+
+## Testing
+
+### OpenSCAD CLI Rendering
+Test changes by compiling to STL via the command line — catches syntax errors and CGAL failures that the GUI preview might hide:
+
+```bash
+/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD -o /tmp/out.stl <file.scad>
+```
+
+**Check the output for:**
+- `Top level object is a 3D object (manifold)` — good, manifold geometry
+- `Status: NoError` — no CGAL errors
+- `ERROR:` lines — compilation failure, check the trace
+
+### Debugging Anchors
+Use `show_anchors()` to verify anchor positions before committing:
+
+```scad
+wire_connector() show_anchors(s=15);
+```
+
+This renders arrows and labels at all anchor positions (standard + named) without modifying geometry.
+
+### Stashing Before Testing
+If a change causes compile errors, stash to revert:
+
+```bash
+git stash          # save working changes
+git stash pop      # restore them
+```
+
+### Common Pitfalls
+- **`attach()` fails with "Unknown anchor"** — the named anchor wasn't registered in the parent's `attachable()`. Check that `named_anchor()` is in the `anchors=` array passed to `attachable()`.
+- **`attachable()` errors** — missing `size=` parameter. Always provide a shape descriptor.
+- **Children silently dropped** — forgot to forward `children()` through a wrapper module.
+- **`rect_tube` wrong position** — use `position(BOTTOM)` on the child, not `anchor=BOTTOM` on the `rect_tube` itself.
