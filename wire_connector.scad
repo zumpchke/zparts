@@ -18,7 +18,7 @@ module base_connector(anchors=[], anchor=CENTER, spin=0, orient=UP) {
     attachable(anchor, spin, orient, size=[WC_W, WC_D, WC_H], anchors=anchors) {
         cuboid([WC_W, WC_D, WC_H]) {
             position(BOTTOM)
-                rect_tube(h=2, size=[WC_W + wall*2 + 2*get_slop(), WC_D + wall*2 + 2*get_slop()], wall=wall, rounding=1);
+                rect_tube(h=3, size=[WC_W + wall*2 + 2*get_slop(), WC_D + wall*2 + 2*get_slop()], wall=wall, rounding=1);
         }
         children();
     }
