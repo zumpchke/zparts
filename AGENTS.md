@@ -84,6 +84,67 @@ smallbb() {
 
 8. **Remove example calls before shipping.** The `wire_connector()` call at the bottom of the file (for standalone preview) causes `attach("mount")` to fail if the anchor isn't defined yet. Remove example code that references anchors before the attachable is properly set up, or test with `wire_connector()` alone (no children).
 
+9. **`tag_this("ghost")` wraps geometry in a transparent container.** Use `tag_this("ghost")` around the entire `diff()` block when you want the geometry to be visible in `show_anchors()` but not interfere with attachable bounding box calculations. The "ghost" tag makes the geometry render in wireframe mode during anchor visualization.
+
+10. **Use `move()` for 2D offsets in the XY plane.** `move([x, y])` translates in the XY plane without affecting Z — useful for positioning holes symmetrically around an axis. Combined with `tag("remove")` and `cyl()`, this creates through-holes cleanly.
+
+11. **Combined height for stacked geometry.** When a part has a base plate + body (like RJ45 jack), compute `total_h = base.z + body.z` and use that for the attachable `size=` and anchor Z positions. The plate top Z is `-total_h/2 + base.z` — this places the anchor at the correct interface between base and body.
+
+---
+
+## rj45_screw Part
+
+### Location
+`rj45_screw.scad`
+
+### Purpose
+RJ45 screw-type jack with through-holes and named attachment anchors for external consumers (e.g., standoffs, brackets).
+
+### Module Structure
+
+- **`rj45_screw(anchor, spin, orient)`** — Uses `attachable()` with `size=[RJ45_BASE.x, RJ45_BASE.y, total_h]` to wrap the combined base plate + body geometry and pass through children. Accepts an array of `named_anchor()`s for attachment points.
+
+- **Geometry:** `diff()` subtracts two `cyl()` holes from the base plate, then adds the RJ45 body on top.
+
+```scad
+module rj45_screw(anchor=CENTER, spin=0, orient=UP) {
+    total_h = RJ45_BASE.z + RJ45_BODY.z;
+    plate_top_z = -total_h/2 + RJ45_BASE.z;
+    anchors = [
+        named_anchor("mount",   [0, 0, -total_h/2], DOWN),
+        named_anchor("screw_L", [-RJ45_HOLE_X, RJ45_HOLE_Y, plate_top_z], UP),
+        named_anchor("screw_R", [ RJ45_HOLE_X, RJ45_HOLE_Y, plate_top_z], UP),
+    ];
+    attachable(anchor, spin, orient,
+               size=[RJ45_BASE.x, RJ45_BASE.y, total_h],
+               anchors=anchors) {
+        tag_this("ghost") down(total_h/2) diff() {
+            cuboid(RJ45_BASE, anchor=BOTTOM) {
+                tag("remove") move([-RJ45_HOLE_X, RJ45_HOLE_Y]) cyl(d=RJ45_HOLE_D, h=RJ45_BASE.z*3);
+                tag("remove") move([ RJ45_HOLE_X, RJ45_HOLE_Y]) cyl(d=RJ45_HOLE_D, h=RJ45_BASE.z*3);
+                position(TOP+FRONT) cuboid(RJ45_BODY, anchor=BOTTOM+FRONT);
+            }
+        }
+        children();
+    }
+}
+```
+
+### Constants
+- `RJ45_BASE = [24.49, 33, 1.6]` — base plate dimensions
+- `RJ45_BODY = [16.5, 15.5, 13]` — RJ45 body dimensions
+- `RJ45_HOLE_D = 3` — hole diameter
+- `RJ45_HOLE_X = RJ45_BASE.x/2 - 2.245` — symmetric hole X offset
+- `RJ45_HOLE_Y = -RJ45_BASE.y/2 + 12.65` — hole Y offset (negative = toward FRONT)
+
+### Design Decisions
+- `tag_this("ghost")` wraps the `diff()` block so geometry renders in wireframe during `show_anchors()` visualization
+- `move([x, y])` for 2D hole placement — cleaner than `translate()` for XY-only offsets
+- `cyl(h=RJ45_BASE.z*3)` ensures holes go fully through the base plate
+- `named_anchor("screw_L"/"screw_R")` with `UP` orientation for attaching standoffs or screws
+- `named_anchor("mount")` at `DOWN` orientation for mounting the entire jack to a PCB or bracket
+- `show_anchors(s=6, std=false)` at bottom for debugging anchor positions
+
 ---
 
 ## wire_connector Part
