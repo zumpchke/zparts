@@ -1,4 +1,5 @@
 include <BOSL2/std.scad>
+use <jl_scad/parts.scad>
 
 $fn = 32;
 
@@ -31,4 +32,13 @@ module rj45_screw(anchor=CENTER, spin=0, orient=UP) {
     }
 }
 
-rj45_screw() show_anchors(s=6, std=false);
+// RJ45 with jl_scad standoffs attached at screw holes.
+// Drop this into a jl_scad box project — it's fully self-contained.
+module rj45_screw_jl(standoff_h=10, standoff_od=4, standoff_id=2) {
+    rj45_screw() {
+        attach("screw_L") standoff(h=standoff_h, od=standoff_od, id=standoff_id, anchor=TOP);
+        attach("screw_R") standoff(h=standoff_h, od=standoff_od, id=standoff_id, anchor=TOP);
+    }
+}
+
+rj45_screw_jl();
