@@ -12,7 +12,7 @@ RJ45_HOLE_Y = -RJ45_BASE.y/2 + 12.65;   // negative = toward FRONT
 
 module rj45_screw(anchor=CENTER, spin=0, orient=UP) {
     total_h = RJ45_BASE.z + RJ45_BODY.z;
-    plate_top_z = -total_h/2 + RJ45_BASE.z;
+    plate_top_z = -total_h/2;
     anchors = [
         named_anchor("mount",   [0, 0, -total_h/2], DOWN),
         named_anchor("screw_L", [-RJ45_HOLE_X, RJ45_HOLE_Y, plate_top_z], UP),
@@ -34,7 +34,7 @@ module rj45_screw(anchor=CENTER, spin=0, orient=UP) {
 
 // RJ45 with jl_scad standoffs attached at screw holes.
 // Drop this into a jl_scad box project — it's fully self-contained.
-module rj45_screw_jl(standoff_h=10, standoff_od=4, standoff_id=2) {
+module rj45_screw_jl(standoff_h=5, standoff_od=4, standoff_id=3) {
     rj45_screw() {
         attach("screw_L") standoff(h=standoff_h, od=standoff_od, id=standoff_id, anchor=TOP);
         attach("screw_R") standoff(h=standoff_h, od=standoff_od, id=standoff_id, anchor=TOP);

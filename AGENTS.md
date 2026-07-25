@@ -112,21 +112,63 @@ Missing that is the classic bug — if `size.z` reflects only the body,
 
 `wire_connector.scad`
 
-Ghost body representing the physical CH-2 connector, plus a printable
-`rect_tube` cradle at its base that acts as a drop-in locator.
+Ghost body representing the physical CH-2 connector, a printable
+`rect_tube` cradle at its base, and an M3 pass-through hole in the body.
+Designed as a **drop-in mount** — attach it to any parent surface wrapped
+in `diff()` and the parent automatically gets an M3 clearance shaft plus
+a captive hex-nut pocket at the mount site.
 
-**Anchors:** `mount` at the underside, orient DOWN.
+**Anchors:**
+- `mount` at the underside of the connector body, orient DOWN. Attach to
+  the parent's outer face here.
+- `screw` at the top of the connector body, orient UP. For attaching the
+  bolt head visualization or a tool clearance envelope.
 
-**Constants:** `WC_W = 19.4`, `WC_D = 17.2`, `WC_H = 13.2`.
+**Params:**
+- `host_thickness` — the parent's Z-extent along the mount normal.
+  Required for the cutters to work; without it the connector emits no
+  cutters and the parent is untouched.
+- `mount_cut=true` — set false to disable the parent-side cutters even
+  when `host_thickness` is passed.
+
+**Constants:** `WC_W = 19.4`, `WC_D = 17.2`, `WC_H = 13.2`,
+`WC_HOLE_D = 3`, `WC_CRADLE_WALL = 1.5`, `WC_CRADLE_H = 3`,
+`WC_CRADLE_EXTRA = 3.0`, `WC_EFF_W = 22.4`, `WC_EFF_D = 20.2`,
+`WC_EFF_H = 16.2`, `WC_M3_CLEAR_D = 3.4`, `WC_M3_NUT_TH = 2.4`.
+Effective footprint (`WC_EFF_*`) includes cradle walls — use these for
+layout spacing. Actual runtime footprint adds `2*get_slop()` for clearance.
+
+**Consumer contract:**
+- Parent MUST be wrapped in `diff()` (or `diff("remove")`) — the exposed
+  `"remove"` cutters need a diff scope. Without one, they render as
+  solid extra material.
+- `host_thickness` must match the parent's real Z-extent along the mount
+  normal; otherwise the nut pocket lands in the wrong place.
+
+**Usage:**
+
+```scad
+diff() cuboid([25, 25, 3])
+    attach(TOP, "mount") hide("ghost")
+        wire_connector(host_thickness=3)
+            attach("screw", BOT) tag("ghost") screw("M3,15", head="button");
+```
 
 Notes:
-- The `cuboid` visualization is tagged `ghost`; the `rect_tube` cradle is
-  not, so `hide("ghost")` in the consumer keeps the cradle but drops the
-  block.
-- `rect_tube` uses `get_slop()` for its inner-envelope tolerance.
-- Known limitation: the `mount` anchor is at `-WC_H/2` (the ghost's
-  bottom), but the cradle extends further below. If you need the anchor
-  on the print's actual bottom face, use `-WC_H/2 - cradle_h`.
+- The ghost cuboid is `tag_this("ghost")`; cradle and cutters are not, so
+  `hide("ghost")` at the consumer removes only the visualization.
+- The connector body itself has an M3 through-hole cut internally at
+  `tag("remove")` — visible through `expose_tags=true`, so the parent's
+  `diff()` also picks it up, meaning the same tag serves both the body
+  and (via extended cutters) the parent.
+- The captive nut pocket uses `nut_trap_inline()` from BOSL2/screws.scad —
+  it cuts a hex-shaped recess in the parent's far face. The `rect_tube`
+  cradle walls trap the nut in place.
+- When included via `include`, set `_skip_render = true` before the include
+  to suppress the test module at the bottom. The file uses
+  `if(is_undef(_skip_render))` guard — not `if(!_skip_render)` which
+  triggers "unknown variable" warnings in OpenSCAD.
+- Attach mechanics use BOSL2 gotcha #11 (`expose_tags=true`) below.
 
 ---
 
@@ -176,6 +218,19 @@ Notes:
 10. **`show_anchors()` needs the parent's `$parent_geom`.** Call it as
     a child of the attachable: `part() show_anchors(...)`. `std=false`
     hides the 27 standard arrows so named anchors are readable.
+
+11. **`expose_tags=true` on `attachable()` propagates cutters to the
+    parent.** By default, `tag("remove")` inside an attachable is
+    scoped: it never reaches a caller-side `diff()`, because
+    `attachable()` gates tag visibility at its boundary
+    (`~/repos/BOSL2/attachments.scad:2476`). Passing
+    `expose_tags=true` defers that check to the child level so tagged
+    geometry participates in the parent's diff. This is BOSL2's
+    documented idiom for "attachable contributes negative space to its
+    host" (docs at `~/repos/BOSL2/attachments.scad:2335-2363`). Used
+    by `wire_connector` so it can imprint its clearance shaft + nut
+    trap onto whatever surface it's attached to. Consumer must wrap
+    the parent in `diff()` — the cutters have no effect otherwise.
 
 ---
 
