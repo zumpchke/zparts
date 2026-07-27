@@ -32,13 +32,30 @@ module rj45_screw(anchor=CENTER, spin=0, orient=UP) {
     }
 }
 
-// RJ45 with jl_scad standoffs attached at screw holes.
-// Drop this into a jl_scad box project — it's fully self-contained.
-module rj45_screw_jl(standoff_h=5, standoff_od=4, standoff_id=3) {
+// RJ45 for jl_scad box projects. Places ghost body, standoffs at screw holes,
+// and optional chamfered cutout through the box wall.
+//   host_thickness  — box wall thickness (for cutout depth)
+//   standoff_h      — standoff height from inside face
+//   standoff_od     — standoff outer diameter
+//   standoff_id     — standoff inner diameter
+//   cutout          — [W, D, H] chamfered cuboid to cut through the wall;
+//                     set undef to skip the cutout.
+//   cutout_offset   — [X, Y, Z] offset from the jack base for the cutout.
+module rj45_screw_jl(host_thickness=3, standoff_h=5, standoff_od=4, standoff_id=3,
+                     cutout=[20, 20, 16], cutout_offset=[0, -10, 3.1]) {
+    // Ghost body preview (above the floor)
+    box_preview() up(host_thickness + RJ45_BASE.z/2) rj45_screw();
+
+    // Standoffs at screw holes
     rj45_screw() {
         attach("screw_L") standoff(h=standoff_h, od=standoff_od, id=standoff_id, anchor=TOP);
         attach("screw_R") standoff(h=standoff_h, od=standoff_od, id=standoff_id, anchor=TOP);
     }
+
+    // Cutout through the wall (if requested)
+    if (!is_undef(cutout)) {
+        box_cut() move(cutout_offset) cuboid(cutout, anchor=BOTTOM, chamfer=3);
+    }
 }
 
-rj45_screw_jl();
+if (is_undef(_skip_render)) rj45_screw_jl();

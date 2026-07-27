@@ -5,9 +5,10 @@ electronic components (breadboards, RJ45 jacks, wire connectors). Each part
 exposes named anchors so downstream projects can attach standoffs, screws,
 and enclosure features without knowing the part's internal coordinates.
 
-**Rule:** zparts depends only on BOSL2. It never `include`s jl_scad or any
-project-specific library. Rendering-mode concerns (preview vs print) are
-handled via the `tag_this("ghost")` convention below, which is pure BOSL2.
+**Rule:** zparts may depend on BOSL2 and jl_scad. Parts that need to integrate
+with jl_scad box projects (standoffs, `box_preview()`, `box_cut()`, `diff()`)
+should `use <jl_scad/parts.scad>` and provide a `*_jl()` variant. Pure BOSL2
+parts (no jl_scad needed) should not `use` jl_scad unnecessarily.
 
 ---
 
