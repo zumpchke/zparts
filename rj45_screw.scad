@@ -1,4 +1,5 @@
 include <BOSL2/std.scad>
+include <jl_scad/box.scad>
 use <jl_scad/parts.scad>
 
 $fn = 32;

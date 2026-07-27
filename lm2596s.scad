@@ -1,5 +1,5 @@
 include <BOSL2/std.scad>
-use <jl_scad/box.scad>
+include <jl_scad/box.scad>
 use <jl_scad/parts.scad>
 
 // LM2596S buck converter module
