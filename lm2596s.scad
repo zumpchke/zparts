@@ -57,7 +57,7 @@ module lm2596s_jl(standoff_h=5, standoff_od=5, standoff_id=LM_MOUNT_HOLE_D) {
 // how the module looks mounted on a box floor.
 module lm2596s_test() {
     // test floor plate
-    color("steelblue", 0.3) cuboid([LM_W+40, LM_D+40, 3], anchor=TOP);
+    color("steelblue", 0.3) cuboid([LM_W*1.125, LM_D*1.125, 3], anchor=TOP);
     // jl variant (origin on floor inside face)
     lm2596s_jl();
 }
