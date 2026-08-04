@@ -47,4 +47,11 @@ module esp32_jl(standoff_h=5, standoff_od=5, standoff_id=ESP_MOUNT_HOLE_D) {
             standoff(h=standoff_h, od=standoff_od, id=standoff_id);
 }
 
-if (is_undef(_skip_render)) esp32() show_anchors(s=6, std=false);
+// Standalone test: flat surface + jl standoffs + ghost body, to preview
+// how the module looks mounted on a box floor.
+module esp32_test() {
+    color("steelblue", 0.3) cuboid([ESP_W*1.125, ESP_D*1.125, 3], anchor=TOP);
+    esp32_jl();
+}
+
+if (is_undef(_skip_render)) esp32_test();
