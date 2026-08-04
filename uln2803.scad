@@ -14,8 +14,8 @@ use <jl_scad/parts.scad>
 
 $fn = 32;
 
-ULN_W = 23;
-ULN_D = 23;
+ULN_W = 24;
+ULN_D = 24;
 ULN_H = 15;
 ULN_MOUNT_Y = ULN_D/2 - 3;    // 8.5mm from center
 ULN_MOUNT_HOLE_D = 3.2;        // M3 clearance
@@ -57,4 +57,11 @@ module uln2803_jl(standoff_h=5, standoff_od=5, standoff_id=ULN_MOUNT_HOLE_D) {
             standoff(h=standoff_h, od=standoff_od, id=standoff_id);
 }
 
-if (is_undef(_skip_render)) uln2803() show_anchors(s=6, std=false);
+// Standalone test: flat surface + jl standoffs + ghost body, to preview
+// how the module looks mounted on a box floor.
+module uln2803_test() {
+    color("steelblue", 0.3) cuboid([ULN_W*1.125, ULN_D*1.25, 3], anchor=TOP);
+    uln2803_jl();
+}
+
+if (is_undef(_skip_render)) uln2803_test();

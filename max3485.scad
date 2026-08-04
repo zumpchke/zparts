@@ -63,4 +63,11 @@ module max3485_jl(carrier_h=MAX3485_CARRIER_H, carrier_wall=MAX3485_CARRIER_WALL
                    h=carrier_h, wall=carrier_wall, anchor=BOTTOM);
 }
 
-if (is_undef(_skip_render)) max3485() show_anchors(s=6, std=false);
+// Standalone test: flat surface + carrier + ghost body, to preview how the
+// module looks mounted on a box floor.
+module max3485_test() {
+    color("steelblue", 0.3) cuboid([MAX3485_W*1.125, MAX3485_D*1.125, 3], anchor=TOP);
+    max3485_jl();
+}
+
+if (is_undef(_skip_render)) max3485_test();

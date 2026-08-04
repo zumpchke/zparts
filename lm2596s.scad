@@ -15,11 +15,11 @@ use <jl_scad/parts.scad>
 
 $fn = 32;
 
-LM_W = 61;
-LM_D = 34;
+LM_W = 66;
+LM_D = 36;
 LM_H = 13;
-LM_MOUNT_X = LM_W/2 - 2;
-LM_MOUNT_Y = LM_D/2 - 2;
+LM_MOUNT_X = LM_W/2 - 2.55;
+LM_MOUNT_Y = LM_D/2 - 2.55;
 LM_MOUNT_HOLE_D = 3;
 
 // Single source of truth for corner mount positions in [x, y].
@@ -57,7 +57,7 @@ module lm2596s_jl(standoff_h=5, standoff_od=5, standoff_id=LM_MOUNT_HOLE_D) {
 // how the module looks mounted on a box floor.
 module lm2596s_test() {
     // test floor plate
-    color("steelblue", 0.3) cuboid([LM_W*1.125, LM_D*1.125, 3], anchor=TOP);
+    color("steelblue", 0.3) cuboid([LM_W*1.125, LM_D*1.125, 1.6], anchor=TOP);
     // jl variant (origin on floor inside face)
     lm2596s_jl();
 }
