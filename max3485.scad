@@ -22,7 +22,7 @@ MAX3485_D = 13.3;
 // preview shows how much vertical room the assembly actually needs.
 MAX3485_H = 15;
 
-MAX3485_CARRIER_H    = 7.5;
+MAX3485_CARRIER_H    = 6;
 MAX3485_CARRIER_WALL = 0.8;   // thin so the walls can flex for the press fit
 
 // Interference fit: the carrier opening is deliberately UNDERSIZE so the
@@ -30,7 +30,7 @@ MAX3485_CARRIER_WALL = 0.8;   // thin so the walls can flex for the press fit
 // values squeeze tighter. Print a test coupon and tune before committing
 // to a full enclosure — too tight bows the PCB or cracks the carrier,
 // too loose and the board rattles.
-MAX3485_CARRIER_PRESS = 0.1;   // per axis, total (not per side)
+MAX3485_CARRIER_PRESS = -0.2;   // per axis, total (not per side)
 
 function max3485_carrier_w() = MAX3485_W - MAX3485_CARRIER_PRESS;
 function max3485_carrier_d() = MAX3485_D - MAX3485_CARRIER_PRESS;
@@ -66,7 +66,7 @@ module max3485_jl(carrier_h=MAX3485_CARRIER_H, carrier_wall=MAX3485_CARRIER_WALL
 // Standalone test: flat surface + carrier + ghost body, to preview how the
 // module looks mounted on a box floor.
 module max3485_test() {
-    color("steelblue", 0.3) cuboid([MAX3485_W*1.125, MAX3485_D*1.125, 3], anchor=TOP);
+    color("steelblue", 0.3) cuboid([MAX3485_W*1.4, MAX3485_D*1.4, 1.6], anchor=TOP);
     max3485_jl();
 }
 
