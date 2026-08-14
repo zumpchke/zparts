@@ -26,8 +26,11 @@ WC_CRADLE_EXTRA = WC_CRADLE_WALL * 2;
 WC_EFF_W = WC_W + WC_CRADLE_EXTRA;
 WC_EFF_D = WC_D + WC_CRADLE_EXTRA;
 WC_EFF_H = WC_H + WC_CRADLE_H;
-WC_M3_CLEAR_D = 3.6;  // increased for 3D print tolerance (elephant's foot)
-WC_M3_NUT_TH  = 2.6;  // slightly thicker pocket for print tolerance
+WC_M3_CLEAR_NOM = 3.4;  // nominal M3 clearance diameter
+WC_M3_NUT_TH_NOM = 2.4; // nominal M3 nut pocket depth
+WC_TOLERANCE = 1.05;    // 3D print tolerance multiplier (elephant's foot, layer adhesion)
+WC_M3_CLEAR_D = WC_M3_CLEAR_NOM * WC_TOLERANCE;
+WC_M3_NUT_TH  = WC_M3_NUT_TH_NOM * WC_TOLERANCE;
 
 module _wc_cradle() {
     rect_tube(h=WC_CRADLE_H,
