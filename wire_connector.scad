@@ -26,8 +26,8 @@ WC_CRADLE_EXTRA = WC_CRADLE_WALL * 2;
 WC_EFF_W = WC_W + WC_CRADLE_EXTRA;
 WC_EFF_D = WC_D + WC_CRADLE_EXTRA;
 WC_EFF_H = WC_H + WC_CRADLE_H;
-WC_M3_CLEAR_D = 3.4;
-WC_M3_NUT_TH  = 2.4;
+WC_M3_CLEAR_D = 3.6;  // increased for 3D print tolerance (elephant's foot)
+WC_M3_NUT_TH  = 2.6;  // slightly thicker pocket for print tolerance
 
 module _wc_cradle() {
     rect_tube(h=WC_CRADLE_H,
