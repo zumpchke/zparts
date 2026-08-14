@@ -65,8 +65,27 @@ module wire_connector_jl(host_thickness) {
     }
 }
 
+// Standalone test: floor plate with clearance hole + nut trap cut through it,
+// cradle on top, ghost body above. Demonstrates the full jl_scad mounting
+// pattern without needing a box shell.
 module wire_connector_test() {
-    wire_connector() show_anchors(s=6, std=false);
+    host = 3;
+    // floor plate with cutouts
+    diff() {
+        color("steelblue", 0.3)
+            cuboid([WC_EFF_W + 20, WC_EFF_D + 20, host], anchor=TOP);
+        // clearance hole through floor
+        down(host/2)
+            cyl(d=WC_M3_CLEAR_D + 2*get_slop(), h=host + 0.2);
+        // nut trap pocket on underside
+        down(host - WC_M3_NUT_TH/2)
+            nut_trap_inline(l=WC_M3_NUT_TH + 2*get_slop(),
+                            spec="M3", anchor=CENTER);
+    }
+    // cradle on floor
+    _wc_cradle();
+    // ghost body preview
+    up(WC_H/2) cuboid([WC_W, WC_D, WC_H]);
 }
 
 if(is_undef(_skip_render)) wire_connector_test();
