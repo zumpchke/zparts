@@ -72,7 +72,7 @@ module wire_connector_test() {
     host = 3;
     // floor plate with cutouts
     diff() {
-        cuboid([WC_EFF_W + 20, WC_EFF_D + 20, host], anchor=TOP);
+        cuboid([WC_EFF_W*1.125, WC_EFF_D*1.125, host], anchor=TOP);
         // clearance hole through the floor
         tag("remove") down(host/2)
             cyl(d=WC_M3_CLEAR_D + 2*get_slop(), h=host + 0.2);
