@@ -72,20 +72,19 @@ module wire_connector_test() {
     host = 3;
     // floor plate with cutouts
     diff() {
-        color("steelblue", 0.3)
-            cuboid([WC_EFF_W + 20, WC_EFF_D + 20, host], anchor=TOP);
-        // clearance hole through floor
-        down(host/2)
+        cuboid([WC_EFF_W + 20, WC_EFF_D + 20, host], anchor=TOP);
+        // clearance hole through the floor
+        tag("remove") down(host/2)
             cyl(d=WC_M3_CLEAR_D + 2*get_slop(), h=host + 0.2);
-        // nut trap pocket on underside
-        down(host - WC_M3_NUT_TH/2)
+        // nut trap pocket, cut up into the plate from the bottom face
+        tag("remove") down(host + 0.01)
             nut_trap_inline(l=WC_M3_NUT_TH + 2*get_slop(),
-                            spec="M3", anchor=CENTER);
+                            spec="M3", anchor=BOTTOM);
     }
-    // cradle on floor
+    // cradle on floor (real printed geometry)
     _wc_cradle();
-    // ghost body preview
-    up(WC_H/2) cuboid([WC_W, WC_D, WC_H]);
+    // ghost body, shown translucent so the cradle/cutouts read clearly
+    %up(WC_H/2) cuboid([WC_W, WC_D, WC_H]);
 }
 
 if(is_undef(_skip_render)) wire_connector_test();
