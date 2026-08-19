@@ -72,7 +72,7 @@ module wire_connector_jl(host_thickness) {
 // cradle on top, ghost body above. Demonstrates the full jl_scad mounting
 // pattern without needing a box shell.
 module wire_connector_test() {
-    host = 3;
+    host = 3.5;
     // floor plate with cutouts
     diff() {
         cuboid([WC_EFF_W*1.125, WC_EFF_D*1.125, host], anchor=TOP);
