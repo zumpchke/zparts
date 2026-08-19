@@ -1,59 +1,47 @@
 include <BOSL2/std.scad>
 include <jl_scad/box.scad>
-use <jl_scad/parts.scad>
 
 $fn = 32;
 
-// Mini breadboard dimensions
+// Mini breadboard (self-adhesive, ~170 tie-point). Two molded pegs on the
+// underside locate it — the printed host just needs matching holes.
 MBB_W = 20;
 MBB_D = 15;
 MBB_H = 9.6;
-MBB_MOUNT_X = 5;    // hole offset from center on X axis
-MBB_MOUNT_HOLE_D = 2;
+MBB_PEG_X = 5;             // peg offset from center on X
+MBB_PEG_D = 2;
+MBB_PEG_H = 12.3 - 9.6;    // peg protrusion below the board (~2.7mm)
 
-module base_minibb(anchors=[], anchor=CENTER, spin=0, orient=UP) {
-    attachable(anchor, spin, orient, size=[MBB_W, MBB_D, MBB_H], anchors=anchors) {
-        diff() {
-            cuboid([MBB_W, MBB_D, MBB_H]);
-            tag("remove") translate([-MBB_MOUNT_X, 0, MBB_H/2])
-                cyl(d=MBB_MOUNT_HOLE_D, h=MBB_H+2, anchor=TOP);
-            tag("remove") translate([MBB_MOUNT_X, 0, MBB_H/2])
-                cyl(d=MBB_MOUNT_HOLE_D, h=MBB_H+2, anchor=TOP);
-        }
-        children();
-    }
+// Board body with the two molded pegs pointing down. Anchored BOTTOM so the
+// board base sits at the origin — pegs poke into −Z.
+module minibb(anchor=BOTTOM, spin=0, orient=UP) {
+    cuboid([MBB_W, MBB_D, MBB_H], anchor=anchor, spin=spin, orient=orient)
+        for (x = [-MBB_PEG_X, MBB_PEG_X])
+            position(BOTTOM) move([x, 0])
+                cyl(d=MBB_PEG_D, h=MBB_PEG_H, anchor=TOP);
 }
 
-module minibb() {
-    anchors = [
-        named_anchor("mount_L", [-MBB_MOUNT_X, 0, MBB_H/2], UP),
-        named_anchor("mount_R", [ MBB_MOUNT_X, 0, MBB_H/2], UP),
-    ];
-    base_minibb(anchors=anchors) children();
+// jl_scad drop-in. Origin on the host inside face; board rests on it and its
+// pegs seat into holes cut in the host.
+module minibb_jl(host_thickness=3) {
+    box_preview() minibb();
+    box_cut()
+        for (x = [-MBB_PEG_X, MBB_PEG_X])
+            move([x, 0]) down(host_thickness/2)
+                cyl(d=MBB_PEG_D + 2*get_slop(), h=host_thickness + 0.2);
 }
 
-// jl_scad drop-in: ghost breadboard lifted on two standoffs above the floor.
-// Standoffs are placed at the MBB_MOUNT_X hole positions — same locations as
-// the mount_L/mount_R anchors, but the anchors sit on the part's TOP face
-// (for box-wall mounting), so attaching standoffs through them would bury
-// the standoff bases inside the breadboard. Explicit placement keeps the
-// two use cases honest.
-module minibb_jl(standoff_h=3, standoff_od=3, standoff_id=MBB_MOUNT_HOLE_D) {
-    box_preview() up(standoff_h + MBB_H/2) minibb();
-    for (x = [-MBB_MOUNT_X, MBB_MOUNT_X])
-        translate([x, 0, 0])
-            standoff(h=standoff_h, od=standoff_od, id=standoff_id);
-}
-
-// Standalone test: mounting surface on top, assembly hanging beneath it
-// (mount normal points down, as when mounted to a lid/ceiling). Exercises the
-// real jl wrapper. $box_show_previews is forced on so box_preview()'s ghost
-// renders in F5 outside a box_make context.
+// Standalone test: host plate with peg holes, ghost board resting on top.
 module minibb_test() {
     $box_show_previews = true;
-    cuboid([MBB_W*1.125, MBB_D*1.125, 3], anchor=BOTTOM) {
-        position(TOP) minibb_jl();
+    host = 3;
+    diff() {
+        cuboid([MBB_W*1.4, MBB_D*1.4, host], anchor=TOP);
+        for (x = [-MBB_PEG_X, MBB_PEG_X])
+            tag("remove") move([x, 0]) down(host/2)
+                cyl(d=MBB_PEG_D + 2*get_slop(), h=host + 0.2);
     }
+    %minibb();
 }
 
 if (is_undef(_skip_render)) minibb_test();
