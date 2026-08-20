@@ -53,11 +53,12 @@ module wire_connector(anchor=CENTER, spin=0, orient=UP) {
     }
 }
 
-module wire_connector_jl(host_thickness) {
+module wire_connector_jl(host_thickness, carrier_color=undef) {
     // ghost body — preview only
     box_preview() up(WC_H/2) cuboid([WC_W, WC_D, WC_H]);
     // cradle — real printed geometry
-    _wc_cradle();
+    if (!is_undef(carrier_color)) color(carrier_color) _wc_cradle();
+    else _wc_cradle();
     // cutters — subtracted from the box wall via jl_scad's implicit diff
     box_cut() {
         down(host_thickness/2)
