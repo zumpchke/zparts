@@ -50,7 +50,7 @@ module lm2596s_jl(standoff_h=5, standoff_od=5, standoff_id=LM_MOUNT_HOLE_D) {
     // four standoffs rising from the inside floor face
     for (p = LM_MOUNT_POS)
         translate([p.x, p.y, 0])
-            standoff(h=standoff_h, od=standoff_od, id=standoff_id);
+            standoff(h=standoff_h, od=standoff_od, id=standoff_id, fillet=2);
 }
 
 // Standalone test: flat surface + jl standoffs + ghost body, to preview

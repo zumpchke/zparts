@@ -62,7 +62,7 @@ module rj45_screw_jl(host_thickness=3, port_reach=25,
 
     // Standoffs at each mount hole, rising from origin to plate underside
     for (pos = [[-RJ45_HOLE_X, RJ45_HOLE_Y], [RJ45_HOLE_X, RJ45_HOLE_Y]])
-        move(pos) standoff(h=standoff_h, od=standoff_od, id=standoff_id);
+        move(pos) standoff(h=standoff_h, od=standoff_od, id=standoff_id, fillet=2);
 
     box_cut() {
         // Plug port cutout: rectangular tunnel at body's XZ cross-section,

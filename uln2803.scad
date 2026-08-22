@@ -54,7 +54,7 @@ module uln2803_jl(standoff_h=5, standoff_od=5, standoff_id=ULN_MOUNT_HOLE_D) {
     box_preview() up(standoff_h + ULN_H/2) _uln2803_ghost();
     for (p = ULN_MOUNT_POS)
         translate([p.x, p.y, 0])
-            standoff(h=standoff_h, od=standoff_od, id=standoff_id);
+            standoff(h=standoff_h, od=standoff_od, id=standoff_id, fillet=2);
 }
 
 // Standalone test: flat surface + jl standoffs + ghost body, to preview

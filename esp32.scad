@@ -44,7 +44,7 @@ module esp32_jl(standoff_h=5, standoff_od=5, standoff_id=ESP_MOUNT_HOLE_D) {
     box_preview() up(standoff_h + ESP_H/2) cuboid([ESP_W, ESP_D, ESP_H]);
     for (p = ESP_MOUNT_POS)
         translate([p.x, p.y, 0])
-            standoff(h=standoff_h, od=standoff_od, id=standoff_id);
+            standoff(h=standoff_h, od=standoff_od, id=standoff_id, fillet=2);
 }
 
 // Standalone test: flat surface + jl standoffs + ghost body, to preview
