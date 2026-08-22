@@ -40,7 +40,7 @@ module esp32(anchor=CENTER, spin=0, orient=UP) {
     }
 }
 
-module esp32_jl(standoff_h=5, standoff_od=5, standoff_id=ESP_MOUNT_HOLE_D) {
+module esp32_jl(standoff_h=7, standoff_od=5, standoff_id=ESP_MOUNT_HOLE_D) {
     box_preview() up(standoff_h + ESP_H/2) cuboid([ESP_W, ESP_D, ESP_H]);
     for (p = ESP_MOUNT_POS)
         translate([p.x, p.y, 0])

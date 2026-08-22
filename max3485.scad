@@ -15,8 +15,8 @@ use <zparts/shield_carrier.scad>
 
 $fn = 32;
 
-MAX3485_W = 19.3;
-MAX3485_D = 13.3;
+MAX3485_W = 19.2;
+MAX3485_D = 13.2;
 // Ghost height is a CLEARANCE envelope, not the bare board. Covers the PCB,
 // the 0.1" pin headers, and the Dupont jumper shells seated on them — so the
 // preview shows how much vertical room the assembly actually needs.
