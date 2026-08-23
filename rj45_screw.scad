@@ -52,7 +52,7 @@ module rj45_screw(anchor=CENTER, spin=0, orient=UP) {
 //                    wall from wherever the RJ45 is placed. Default 25mm.
 //   standoff_h/od/id — mounting standoff dimensions
 module rj45_screw_jl(host_thickness=3, port_reach=25,
-                     standoff_h=5, standoff_od=5, standoff_id=3) {
+                     standoff_h=4, standoff_od=5, standoff_id=3) {
     total_h = RJ45_BASE.z + RJ45_BODY.z;
     body_center_z = standoff_h + RJ45_BASE.z + RJ45_BODY.z/2;
     body_back_y = -RJ45_BASE.y/2 + RJ45_BODY.y;    // rj45 local Y of body's back
