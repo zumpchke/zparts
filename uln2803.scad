@@ -50,7 +50,7 @@ module uln2803(anchor=CENTER, spin=0, orient=UP) {
     }
 }
 
-module uln2803_jl(standoff_h=5, standoff_od=5, standoff_id=ULN_MOUNT_HOLE_D) {
+module uln2803_jl(standoff_h=5, standoff_od=5, standoff_id=3) {
     box_preview() up(standoff_h + ULN_H/2) _uln2803_ghost();
     for (p = ULN_MOUNT_POS)
         translate([p.x, p.y, 0])
