@@ -19,7 +19,7 @@ FAN_MOUNT_POS = [
 ];
 
 module fan4010() {
-    import("fan4010.stl", convexity=10);
+    translate([0, 0, 10]) scale([1, 1, -1]) import("fan4010.stl");
 }
 
 // jl_scad drop-in. Origin sits on the host's inside face, Z pointing into the
@@ -30,8 +30,11 @@ module fan4010_jl(host_thickness=3) {
     box_preview() fan4010();
     box_cut() {
         // airflow opening through the wall
-        down(host_thickness/2)
+        down(host_thickness/2) {
             cyl(d=FAN_BORE_D, h=host_thickness + 0.2);
+            // For power wire
+            color("red") translate([-6.5, -37.2/2 + 2, 0]) cyl(d=10, h=host_thickness + 0.2);
+        }
         // four M3 screw holes
         for (p = FAN_MOUNT_POS)
             translate([p.x, p.y, 0]) down(host_thickness/2)
