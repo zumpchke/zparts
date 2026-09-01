@@ -53,6 +53,10 @@ module wire_connector(anchor=CENTER, spin=0, orient=UP) {
     }
 }
 
+module wire_connector_base() {
+    cuboid([WC_W, WC_D, WC_H]);
+}
+
 module wire_connector_jl(host_thickness, carrier_color=undef) {
     // ghost body — preview only
     box_preview() up(WC_H/2) cuboid([WC_W, WC_D, WC_H]);
@@ -64,8 +68,7 @@ module wire_connector_jl(host_thickness, carrier_color=undef) {
         down(host_thickness/2)
             cyl(d=WC_M3_CLEAR_D + 2*get_slop(), h=host_thickness + 0.2);
         down(host_thickness - WC_M3_NUT_TH/2)
-            nut_trap_inline(l=WC_M3_NUT_TH + 2*get_slop(),
-                            spec="M3", anchor=CENTER);
+            nut_trap_inline(l=WC_M3_NUT_TH + 2*get_slop(), spec="M3", anchor=CENTER);
     }
 }
 

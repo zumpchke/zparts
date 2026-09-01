@@ -1,5 +1,6 @@
 include <BOSL2/std.scad>
 include <jl_scad/box.scad>
+include <BOSL2/screws.scad>
 
 $fn = 64;
 
@@ -18,6 +19,11 @@ FAN_MOUNT_POS = [
     [ FAN_MOUNT,  FAN_MOUNT],
 ];
 
+// Segment count for the airflow bore. The global $fn=64 leaves ~1.8mm facets
+// on a 37mm circle (visibly polygonal); size it by circumference for ~0.5mm
+// segments so the bore reads smooth.
+FAN_BORE_FN = max(64, ceil(PI * FAN_BORE_D / 0.5));
+
 module fan4010() {
     translate([0, 0, 10]) scale([1, 1, -1]) import("fan4010.stl");
 }
@@ -31,7 +37,7 @@ module fan4010_jl(host_thickness=3) {
     box_cut() {
         // airflow opening through the wall
         down(host_thickness/2) {
-            cyl(d=FAN_BORE_D, h=host_thickness + 0.2);
+            cyl(d=FAN_BORE_D, h=host_thickness + 0.2, $fn=FAN_BORE_FN);
             // For power wire
             color("red") translate([-6.5, -37.2/2 + 2, 0]) cyl(d=10, h=host_thickness + 0.2);
         }
